@@ -3,30 +3,19 @@
 
 import { serverFetch } from "@/lib/server-fetch";
 import { zodValidator } from "@/lib/zodValidator";
-import { z } from "zod";
 import { loginUser } from "./loginUser";
+import { seekerRegisterSchema } from "@/zod/auth.validation";
 
-// Zod schema for job seeker registration
-const seekerSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
-  email: z.string().email("Valid email is required"),
-  phone: z.string().regex(/^01[3-9]\d{8}$/).optional(),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-export async function registerJobSeeker(
-  _prevState: any,
-  formData: FormData
-) {
+export async function registerJobSeeker(_prevState: any, formData: FormData) {
   try {
     const payload = {
-      fullName: formData.get("fullName"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      password: formData.get("password"),
+      fullName: formData.get("fullName") as string,
+      email: formData.get("email") as string,
+      phone: formData.get("phone") as string | null,
+      password: formData.get("password") as string,
     };
 
-    const validation = zodValidator(payload, seekerSchema);
+    const validation = zodValidator(payload, seekerRegisterSchema);
     if (!validation.success) {
       return validation;
     }
@@ -47,6 +36,7 @@ export async function registerJobSeeker(
     const result = await res.json();
 
     if (result.success) {
+      // Auto-login after successful registration
       await loginUser(null, formData);
     }
 
