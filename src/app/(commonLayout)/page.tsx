@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { getUserInfo } from "@/services/auth/getUserInfo";
 import Image from "next/image";
 import Link from "next/link";
+import JobPortalLoader from "@/components/shared/job-portal-loader";
 
 export const metadata: Metadata = {
   title: "iJob Bangladesh - Find Your Dream Job",
@@ -16,6 +17,7 @@ export default async function HomePage() {
     <main className="min-h-screen bg-gray-50">
       {/* <Hero /> */}
       <div className="max-w-5xl mx-auto px-5 sm:px-8 pt-16 pb-12">
+        <JobPortalLoader  text="Loading jobs..." />
         {user ? (
           <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 mb-12">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
