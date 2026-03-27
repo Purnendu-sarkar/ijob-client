@@ -44,7 +44,22 @@ export const loginValidationZodSchema = z.object({
     }),
 });
 
+// ── Change Password  ───────────────────────────────────────
+export const changePasswordSchema = z
+    .object({
+        oldPassword: z.string().min(6, "Password must be at least 6 characters"),
+        newPassword: z.string().min(6, "Password must be at least 6 characters"),
+        confirmPassword: z
+            .string()
+            .min(6, "Password must be at least 6 characters"),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Passwords don't match",
+        path: ["confirmPassword"],
+    });
+
 
 export type SeekerRegisterInput = z.infer<typeof seekerRegisterSchema>;
 export type EmployerRegisterInput = z.infer<typeof employerRegisterSchema>;
 export type LoginInput = z.infer<typeof loginValidationZodSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
