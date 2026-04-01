@@ -6,7 +6,7 @@ import { parse } from "cookie";
 import { revalidateTag } from "next/cache";
 import { deleteCookie, getCookie, setCookie } from "./tokenHandlers";
 import { zodValidator } from "@/lib/zodValidator";
-import { changePasswordSchema } from "@/zod/auth.validation";
+import { changePasswordSchema, forgotPasswordSchema, resetPasswordSchema } from "@/zod/auth.validation";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export async function updateMyProfile(formData: FormData) {
@@ -221,4 +221,116 @@ export async function changePassword(_prevState: any, formData: FormData) {
 }
 
 
+// Forgot Password
+export async function forgotPassword(_prevState: any, formData: FormData) {
+    // Build validation payload
+    const validationPayload = {
+        email: formData.get("email") as string,
+    };
 
+    // Validate
+    const validatedPayload = zodValidator(
+        validationPayload,
+        forgotPasswordSchema
+    );
+
+    if (!validatedPayload.success && validatedPayload.errors) {
+        return {
+            success: false,
+            message: "Validation failed",
+            formData: validationPayload,
+            errors: validatedPayload.errors,
+        };
+    }
+
+    try {
+        // API Call
+        const response = await serverFetch.post("/auth/forgot-password", {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: validationPayload.email,
+            }),
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || "Failed to send reset link");
+        }
+
+        return {
+            success: true,
+            message: "Password reset link has been sent to your email!",
+        };
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error?.message || "Something went wrong",
+            formData: validationPayload,
+        };
+    }
+}
+
+// Reset Password
+export async function resetPassword(_prevState: any, formData: FormData) {
+    const isEmailReset = formData.get("isEmailReset") === "true";
+    const email = formData.get("email") as string;
+    const token = formData.get("token") as string;
+
+    const validationPayload = {
+        newPassword: formData.get("newPassword") as string,
+        confirmPassword: formData.get("confirmPassword") as string,
+    };
+
+    const validatedPayload = zodValidator(validationPayload, resetPasswordSchema);
+
+    if (!validatedPayload.success && validatedPayload.errors) {
+        return { success: false, message: "Validation failed", errors: validatedPayload.errors };
+    }
+
+    try {
+        let response;
+
+        if (isEmailReset) {
+            if (!email || !token) {
+                return { success: false, message: "Invalid reset link" };
+            }
+
+            response = await serverFetch.post("/auth/reset-password", {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: validationPayload.newPassword,
+                }),
+            });
+        } else {
+            // Normal reset password flow (user is logged in and changing password from profile)
+            response = await serverFetch.post("/auth/reset-password", {
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: validationPayload.newPassword }),
+            });
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || "Password reset failed");
+        }
+
+        return {
+            success: true,
+            message: "Password reset successfully! Redirecting...",
+            redirectToLogin: true,
+        };
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error?.message || "Something went wrong",
+        };
+    }
+}

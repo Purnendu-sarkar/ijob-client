@@ -58,8 +58,29 @@ export const changePasswordSchema = z
         path: ["confirmPassword"],
     });
 
+// ── Reset Password  ───────────────────────────────────────
+export const resetPasswordSchema = z
+    .object({
+        newPassword: z.string().min(6, "Password must be at least 6 characters"),
+        confirmPassword: z
+            .string()
+            .min(6, "Password must be at least 6 characters"),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Passwords don't match",
+        path: ["confirmPassword"],
+    });
+
+
+// ── Forgot Password  ───────────────────────────────────────
+export const forgotPasswordSchema = z.object({
+    email: z.email("Please enter a valid email address"),
+});
+
 
 export type SeekerRegisterInput = z.infer<typeof seekerRegisterSchema>;
 export type EmployerRegisterInput = z.infer<typeof employerRegisterSchema>;
 export type LoginInput = z.infer<typeof loginValidationZodSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
