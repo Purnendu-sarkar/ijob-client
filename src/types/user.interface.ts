@@ -1,8 +1,7 @@
 import { UserRole } from "@/lib/auth-utils";
-import { JobSeekerProfile } from "@/services/auth/getUserInfo";
+import { AdminProfile, JobSeekerProfile } from "@/services/auth/getUserInfo";
 import { EmployerProfile } from "./employer.interface";
 import { ModeratorProfile } from "./moderator.interface";
-import { AdminProfile } from "./admin.interface";
 
 
 export interface UserInfo {
