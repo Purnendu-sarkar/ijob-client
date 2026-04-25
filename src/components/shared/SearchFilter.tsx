@@ -8,11 +8,17 @@ import { Input } from "../ui/input";
 interface SearchFilterProps {
   placeholder?: string;
   paramName?: string;
+  className?: string;
+  type?: "text" | "select";
+  options?: { label: string; value: string }[];
 }
 
 const SearchFilter = ({
   placeholder = "Search...",
   paramName = "searchTerm",
+  className,
+  type = "text",
+  options = [],
 }: SearchFilterProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -44,15 +50,32 @@ const SearchFilter = ({
   }, [debouncedValue, paramName, router]);
 
   return (
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-      <Input
-        placeholder={placeholder}
-        className="pl-10"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        disabled={isPending}
-      />
+    <div className={`relative ${className}`}>
+      {type === "text" ? (
+        <>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={placeholder}
+            className="pl-10"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            disabled={isPending}
+          />
+        </>
+      ) : (
+        <select
+          className="border rounded-md px-3 py-2 text-sm"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          disabled={isPending}
+        >
+          {options.map((opt, i) => (
+            <option key={i} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      )}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import {
   Loader2,
   MoreHorizontal,
   Trash,
+  Trash2,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useTransition } from "react";
@@ -16,6 +17,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import {
@@ -40,6 +42,7 @@ interface ManagementTableProps<T> {
   onView?: (row: T) => void;
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
+  onHardDelete?: (row: T) => void;
   getRowKey: (row: T) => string;
   emptyMessage?: string;
   isRefreshing?: boolean;
@@ -55,6 +58,7 @@ function ManagementTable<T>({
   onView,
   onEdit,
   onDelete,
+  onHardDelete,
   getRowKey,
   emptyMessage = "No records found.",
   isRefreshing = false,
@@ -179,11 +183,23 @@ function ManagementTable<T>({
                           {onDelete && (
                             <DropdownMenuItem
                               onClick={() => onDelete(item)}
-                              className="text-destructive"
+                              variant="destructive"
                             >
                               <Trash className="mr-2 h-4 w-4" />
                               Delete
                             </DropdownMenuItem>
+                          )}
+                          {onHardDelete && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => onHardDelete(item)}
+                                variant="destructive"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Permanently
+                              </DropdownMenuItem>
+                            </>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
