@@ -63,7 +63,7 @@ function ManagementTable<T>({
   emptyMessage = "No records found.",
   isRefreshing = false,
 }: ManagementTableProps<T>) {
-  const hasActions = onView || onEdit || onDelete;
+  const hasActions = onView || onEdit || onDelete || onHardDelete;
   const router = useRouter();
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
@@ -123,13 +123,14 @@ function ManagementTable<T>({
               {columns?.map((column, colIndex) => (
                 <TableHead key={colIndex} className={column.className}>
                   {column.sortKey ? (
-                    <span
+                    <button
+                      type="button"
                       onClick={() => handleSort(column.sortKey!)}
-                      className="flex items-center p-2 hover:text-foreground transition-colors font-medium cursor-pointer select-none"
+                      className="flex items-center gap-1 p-2 -m-2 text-left font-medium transition-colors hover:text-foreground"
                     >
                       {column.header}
                       {getSortIcon(column.sortKey)}
-                    </span>
+                    </button>
                   ) : (
                     column.header
                   )}
@@ -163,7 +164,7 @@ function ManagementTable<T>({
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" aria-label="Open row actions">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>

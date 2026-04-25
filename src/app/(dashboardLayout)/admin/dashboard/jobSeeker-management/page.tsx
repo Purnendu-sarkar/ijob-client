@@ -33,14 +33,28 @@ const JobSeekersTableSection = async ({
   const limit = Number(result?.meta?.limit ?? 10);
   const currentPage = Number(result?.meta?.page ?? 1);
   const totalPages = Math.max(1, Math.ceil(total / limit));
+  const from = total === 0 ? 0 : (currentPage - 1) * limit + 1;
+  const to = Math.min(currentPage * limit, total);
 
   return (
-    <>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-1 rounded-xl border bg-card px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <p>
+          Showing <span className="font-medium text-foreground">{from}</span> to{" "}
+          <span className="font-medium text-foreground">{to}</span> of{" "}
+          <span className="font-medium text-foreground">{total}</span> job seeker
+          profiles
+        </p>
+        <p>
+          Page <span className="font-medium text-foreground">{currentPage}</span>{" "}
+          of <span className="font-medium text-foreground">{totalPages}</span>
+        </p>
+      </div>
       <JobSeekersTable jobSeekers={jobSeekers} />
       {totalPages > 1 && (
         <TablePagination currentPage={currentPage} totalPages={totalPages} />
       )}
-    </>
+    </div>
   );
 };
 

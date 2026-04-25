@@ -6,19 +6,17 @@ import SearchFilter from "@/components/shared/SearchFilter";
 
 const JobSeekersFilter = () => {
   return (
-    <div className="space-y-3">
-      {/* Row 1: Main Search + Refresh */}
-      <div className="flex items-center gap-3">
+    <div className="space-y-3 rounded-xl border bg-card p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <SearchFilter
           paramName="searchTerm"
           placeholder="Search by name, email or phone..."
-          className="flex-1"
+          className="flex-1 min-w-0"
         />
         <RefreshButton />
       </div>
 
-      {/* Row 2: Additional Filters */}
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex flex-wrap items-center gap-3">
         <SearchFilter paramName="email" placeholder="Email" />
         <SearchFilter paramName="phone" placeholder="Phone" />
         <SearchFilter

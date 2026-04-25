@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { updateJobSeeker } from "@/services/admin/jobSeekersManagement";
 import { IJobSeeker } from "@/types/jobSeeker.interface";
 import { Badge } from "@/components/ui/badge";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface Props {
@@ -33,6 +33,9 @@ const JobSeekerFormDialog = ({
 }: Props) => {
   const formRef = useRef<HTMLFormElement>(null);
   const isEdit = !!jobSeeker?.id;
+  const [isVerified, setIsVerified] = useState(
+    jobSeeker?.isProfileVerified || false,
+  );
 
   const [state, formAction, isPending] = useActionState(
     updateJobSeeker.bind(null, jobSeeker?.id || ""),
@@ -58,6 +61,7 @@ const JobSeekerFormDialog = ({
 
   const handleClose = () => {
     formRef.current?.reset();
+    setIsVerified(jobSeeker?.isProfileVerified || false);
     onClose();
   };
 
@@ -189,10 +193,12 @@ const JobSeekerFormDialog = ({
                     Mark as verified after manual review
                   </p>
                 </div>
-                <Switch
+                <input
+                  type="hidden"
                   name="isProfileVerified"
-                  defaultChecked={jobSeeker?.isProfileVerified || false}
+                  value={isVerified ? "true" : "false"}
                 />
+                <Switch checked={isVerified} onCheckedChange={setIsVerified} />
               </div>
             </Field>
 
