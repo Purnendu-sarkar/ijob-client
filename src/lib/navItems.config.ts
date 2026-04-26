@@ -222,6 +222,12 @@ export const getAdminNavItems = async (): Promise<NavSection[]> => {
                     roles: ["ADMIN"],
                 },
                 {
+                    title: "Employers",
+                    href: "/admin/dashboard/employer-management",
+                    icon: "Building2",
+                    roles: ["ADMIN"],
+                },
+                {
                     title: "Companies",
                     href: "/admin/companies",
                     icon: "Building",
