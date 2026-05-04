@@ -3,12 +3,17 @@ import { getUserInfo } from "@/services/auth/getUserInfo";
 import Image from "next/image";
 import Link from "next/link";
 import JobPortalLoader from "@/components/shared/job-portal-loader";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "iJob Bangladesh - Find Your Dream Job",
   description:
     "Search thousands of jobs in Bangladesh. Connect with top employers, apply easily, and grow your career with iJob Bangladesh.",
 };
+
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const user = await getUserInfo();
@@ -139,12 +144,25 @@ export default async function HomePage() {
             interviews quickly.
           </p>
 
-          {/* Search placeholder */}
-          <div className="max-w-4xl mx-auto bg-white p-4 rounded-xl shadow-lg border border-gray-200">
-            <p className="text-gray-400 italic">
-              Search by job type, company, or location...
-            </p>
-          </div>
+          <form
+            action="/jobs"
+            method="get"
+            className="max-w-4xl mx-auto bg-white p-3 rounded-xl shadow-lg border border-gray-200"
+          >
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Input
+                  name="id"
+                  placeholder="Search by job title, company, or keyword..."
+                  className="h-12 pl-10 text-base"
+                />
+              </div>
+              <Button type="submit" size="lg" className="h-12 px-8">
+                Search Jobs
+              </Button>
+            </div>
+          </form>
         </section>
       </div>
     </main>
