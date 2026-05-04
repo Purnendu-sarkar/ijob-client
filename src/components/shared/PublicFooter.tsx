@@ -155,7 +155,7 @@ export default function PublicFooter() {
             <ul className="space-y-3">
               <li>
                 <Link
-                  href="/employer/jobs/new"
+                  href="employer/dashboard/jobs/new"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   Post a Job

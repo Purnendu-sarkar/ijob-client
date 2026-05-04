@@ -131,6 +131,16 @@ export async function proxy(request: NextRequest) {
 
     if (accessToken) {
         const userInfo = await getUserInfo();
+
+        // If token exists but user info can't be fetched, force re-auth.
+        if (!userInfo) {
+            await deleteCookie("accessToken");
+            await deleteCookie("refreshToken");
+            const loginUrl = new URL("/login", request.url);
+            loginUrl.searchParams.set("redirect", pathname);
+            return NextResponse.redirect(loginUrl);
+        }
+
         if (userInfo?.needPasswordChange) {
             if (pathname !== "/reset-password") {
                 const resetPasswordUrl = new URL("/reset-password", request.url);
@@ -142,6 +152,19 @@ export async function proxy(request: NextRequest) {
 
         if (userInfo && !userInfo.needPasswordChange && pathname === '/reset-password') {
             return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole as UserRole), request.url));
+        }
+
+        // Employer company verification gate:
+        // block employer routes until company is verified (except the status page).
+        if (
+            userRole === "EMPLOYER" &&
+            routerOwner === "EMPLOYER" &&
+            pathname !== "/employer/dashboard/pending-verification"
+        ) {
+            const companyStatus = userInfo?.employerProfile?.company?.verificationStatus;
+            if (companyStatus && companyStatus !== "VERIFIED") {
+                return NextResponse.redirect(new URL("/employer/dashboard/pending-verification", request.url));
+            }
         }
     }
 

@@ -128,21 +128,21 @@ export const getEmployerNavItems = async (): Promise<NavSection[]> => {
         {
             title: "Hiring",
             items: [
-                {
-                    title: "Post a Job",
-                    href: "/employer/jobs/new",
-                    icon: "PlusCircle",
-                    roles: ["EMPLOYER"],
-                },
+                    {
+                        title: "Post a Job",
+                        href: "/employer/dashboard/jobs/new",
+                        icon: "PlusCircle",
+                        roles: ["EMPLOYER"],
+                    },
                 {
                     title: "My Jobs",
-                    href: "/employer/jobs",
+                    href: "/employer/dashboard/jobs",
                     icon: "Briefcase",
                     roles: ["EMPLOYER"],
                 },
                 {
                     title: "Applications",
-                    href: "/employer/applications",
+                    href: "/employer/dashboard/applications",
                     icon: "Users",
                     badge: newApplications > 0 ? newApplications : undefined,
                     roles: ["EMPLOYER"],
@@ -155,7 +155,7 @@ export const getEmployerNavItems = async (): Promise<NavSection[]> => {
             items: [
                 {
                     title: "Company Profile",
-                    href: "/employer/company",
+                    href: "/employer/dashboard/company",
                     icon: "Building2",
                     roles: ["EMPLOYER"],
                 },
