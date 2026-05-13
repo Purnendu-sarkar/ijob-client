@@ -15,8 +15,10 @@ export enum UserRole {
 // Interfaces
 export interface BaseUserInfo {
   id: string;
-  email: string;
+  email?: string | null;
   phone?: string | null;
+  emailVerifiedAt?: string | null;
+  phoneVerifiedAt?: string | null;
   fullName?: string | null;
   profilePhotoUrl?: string | null;
   role: UserRole;
@@ -36,9 +38,14 @@ export interface JobSeekerProfile {
   expectedSalaryMax?: number | null;
   experienceYears?: number | null;
   about?: string | null;
+  education?: string | null;
+  skills?: string[];
+  resumeUrl?: string | null;
+  videoIntroUrl?: string | null;
   preferredJobTypes?: string[];
   preferredLocations?: string[];
   profileCompletion?: number;
+  isProfileVerified?: boolean;
 }
 
 export interface EmployerProfile {
@@ -52,7 +59,23 @@ export interface EmployerProfile {
     description?: string | null;
     website?: string | null;
     address?: string | null;
+    industry?: string | null;
+    companySize?: string | null;
+    contactEmail?: string | null;
+    contactPhone?: string | null;
+    tradeLicenseNumber?: string | null;
     verificationStatus: string;
+    verificationSubmittedAt?: string | null;
+    verificationReviewedAt?: string | null;
+    verificationRejectionReason?: string | null;
+    verificationDocuments?: Array<{
+      id: string;
+      documentType: string;
+      fileUrl: string;
+      status: string;
+      rejectionReason?: string | null;
+      createdAt?: string;
+    }>;
   } | null;
 }
 
@@ -108,8 +131,10 @@ export const getUserInfo = async (): Promise<UserInfo | null> => {
 
     const base: BaseUserInfo = {
       id: user.id,
-      email: user.email,
+      email: user.email ?? null,
       phone: user.phone ?? null,
+      emailVerifiedAt: user.emailVerifiedAt ?? null,
+      phoneVerifiedAt: user.phoneVerifiedAt ?? null,
       fullName: user.fullName ?? null,
       profilePhotoUrl: user.profilePhotoUrl ?? null,
       role: user.role as UserRole,

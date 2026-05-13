@@ -21,18 +21,17 @@ const LoginForm = ({ redirect }: { redirect?: string }) => {
       {redirect && <input type="hidden" name="redirect" value={redirect} />}
       <FieldGroup>
         <div className="grid grid-cols-1 gap-4">
-          {/* Email */}
           <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <FieldLabel htmlFor="identifier">Email or phone</FieldLabel>
             <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="m@example.com"
-              //   required
+              id="identifier"
+              name="identifier"
+              type="text"
+              placeholder="m@example.com or 01XXXXXXXXX"
+              required
             />
 
-            <InputFieldError field="email" state={state} />
+            <InputFieldError field="identifier" state={state} />
           </Field>
 
           {/* Password */}
@@ -43,7 +42,7 @@ const LoginForm = ({ redirect }: { redirect?: string }) => {
               name="password"
               type="password"
               placeholder="Enter your password"
-              //   required
+              required
             />
             <InputFieldError field="password" state={state} />
           </Field>

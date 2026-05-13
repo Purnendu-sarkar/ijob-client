@@ -31,7 +31,7 @@ export async function updateMyProfile(formData: FormData) {
             uploadFormData.append('file', file);
         }
 
-        const response = await serverFetch.patch(`/user/update-my-profile`, {
+        const response = await serverFetch.patch(`/job-seekers/me/profile`, {
             body: uploadFormData,
         });
 
@@ -128,20 +128,20 @@ export async function getNewAccessToken() {
 
         await deleteCookie("accessToken");
         await setCookie("accessToken", accessTokenObject.accessToken, {
-            secure: true,
+            secure: process.env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: parseInt(accessTokenObject['Max-Age']) || 1000 * 60 * 60,
             path: accessTokenObject.Path || "/",
-            sameSite: accessTokenObject['SameSite'] || "none",
+            sameSite: accessTokenObject['SameSite'] || "lax",
         });
 
         await deleteCookie("refreshToken");
         await setCookie("refreshToken", refreshTokenObject.refreshToken, {
-            secure: true,
+            secure: process.env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: parseInt(refreshTokenObject['Max-Age']) || 1000 * 60 * 60 * 24 * 90,
             path: refreshTokenObject.Path || "/",
-            sameSite: refreshTokenObject['SameSite'] || "none",
+            sameSite: refreshTokenObject['SameSite'] || "lax",
         });
 
         if (!result.success) {

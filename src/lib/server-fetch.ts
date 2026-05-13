@@ -7,11 +7,12 @@ const BACKEND_API_URL = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhos
 // /auth/login
 const serverFetchHelper = async (endpoint: string, options: RequestInit): Promise<Response> => {
     const { headers, ...restOptions } = options;
-    const accessToken = await getCookie("accessToken");
+    let accessToken = await getCookie("accessToken");
 
     //to stop recursion loop
     if (endpoint !== "/auth/refresh-token") {
         await getNewAccessToken();
+        accessToken = await getCookie("accessToken");
     }
 
     const response = await fetch(`${BACKEND_API_URL}${endpoint}`, {

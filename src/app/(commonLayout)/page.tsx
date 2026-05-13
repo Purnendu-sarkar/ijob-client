@@ -17,6 +17,9 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const user = await getUserInfo();
+  const displayName =
+    user?.fullName || user?.email?.split("@")[0] || user?.phone || "iJob user";
+  const avatarInitial = displayName.charAt(0).toUpperCase();
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -37,19 +40,16 @@ export default async function HomePage() {
                 />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-inner">
-                  {user.fullName?.charAt(0)?.toUpperCase() ||
-                    user.email.charAt(0).toUpperCase()}
+                  {avatarInitial}
                 </div>
               )}
 
               {/* User Details */}
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {user.fullName || user.email.split("@")[0]}
+                  {displayName}
                 </h2>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {user.email || user.email.split("@")[0]}
-                </h2>
+                <p className="text-sm text-gray-600">{user.email || user.phone}</p>
 
                 <div className="mt-1 flex items-center gap-3">
                   <span

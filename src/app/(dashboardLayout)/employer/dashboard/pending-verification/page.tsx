@@ -1,5 +1,12 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import CompanyVerificationUploadForm from "@/components/modules/Employer/CompanyVerificationUploadForm";
 import { getUserInfo } from "@/services/auth/getUserInfo";
 import { redirect } from "next/navigation";
 
@@ -14,20 +21,20 @@ const EmployerPendingVerificationPage = async () => {
 
   const company = user.employerProfile?.company;
   const status = company?.verificationStatus || "PENDING";
+  const documents = company?.verificationDocuments || [];
 
   if (status === "VERIFIED") {
     redirect("/employer/dashboard");
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Company verification required
+          Company verification
         </h1>
         <p className="text-muted-foreground">
-          Your employer account is created, but your company needs to be verified by an
-          Admin before you can post jobs or manage hiring.
+          {company?.name || "Your company"} is waiting for admin review.
         </p>
       </div>
 
@@ -35,29 +42,55 @@ const EmployerPendingVerificationPage = async () => {
         <CardHeader className="border-b">
           <CardTitle className="text-base">Verification status</CardTitle>
           <CardDescription>
-            Company: <span className="font-medium">{company?.name || "—"}</span>
+            Company: <span className="font-medium">{company?.name || "-"}</span>
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="text-sm text-muted-foreground">
-            Current status:{" "}
-            <Badge variant="secondary" className="ml-1">
+        <CardContent className="space-y-4 pt-6">
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Current status:</span>
+            <Badge variant={status === "REJECTED" ? "destructive" : "secondary"}>
               {status}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground">
-            If this takes longer than expected, please contact support and share your
-            company name.
-          </p>
+
+          {company?.verificationRejectionReason ? (
+            <p className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+              {company.verificationRejectionReason}
+            </p>
+          ) : null}
+
+          {documents.length ? (
+            <div className="space-y-2">
+              <h2 className="text-sm font-medium">Submitted documents</h2>
+              <div className="divide-y rounded-md border">
+                {documents.map((document) => (
+                  <div
+                    key={document.id}
+                    className="flex flex-wrap items-center justify-between gap-2 p-3 text-sm"
+                  >
+                    <span>{document.documentType.replaceAll("_", " ")}</span>
+                    <Badge variant="outline">{document.status}</Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
-      <div className="bg-red-500 p-4 text-white text-center font-medium rounded">
-        TODO: In the future, there will be a way or some mechanism to contact the admin/moderator here.
-      </div>
+      <Card>
+        <CardHeader className="border-b">
+          <CardTitle className="text-base">Upload verification documents</CardTitle>
+          <CardDescription>
+            PDF, JPG, PNG, or WEBP. Maximum 5MB per file.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <CompanyVerificationUploadForm />
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
 export default EmployerPendingVerificationPage;
-

@@ -17,14 +17,14 @@ export const metadata = {
 const RegisterPage = () => {
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-4xl">
         <Card className="border-none shadow-lg">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">
               Create an account
             </CardTitle>
             <CardDescription>
-              Choose your role and enter your information to get started
+              Choose your role and register with phone or email
             </CardDescription>
           </CardHeader>
 

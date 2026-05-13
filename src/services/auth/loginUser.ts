@@ -18,7 +18,7 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
         let accessTokenObject: null | any = null;
         let refreshTokenObject: null | any = null;
         const payload = {
-            email: formData.get('email'),
+            identifier: formData.get('identifier') || formData.get('email') || formData.get('phone'),
             password: formData.get('password'),
         }
 
@@ -64,19 +64,19 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
 
 
         await setCookie("accessToken", accessTokenObject.accessToken, {
-            secure: true,
+            secure: process.env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: parseInt(accessTokenObject['Max-Age']) || 1000 * 60 * 60,
             path: accessTokenObject.Path || "/",
-            sameSite: accessTokenObject['SameSite'] || "none",
+            sameSite: accessTokenObject['SameSite'] || "lax",
         });
 
         await setCookie("refreshToken", refreshTokenObject.refreshToken, {
-            secure: true,
+            secure: process.env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: parseInt(refreshTokenObject['Max-Age']) || 1000 * 60 * 60 * 24 * 90,
             path: refreshTokenObject.Path || "/",
-            sameSite: refreshTokenObject['SameSite'] || "none",
+            sameSite: refreshTokenObject['SameSite'] || "lax",
         });
         const verifiedToken: JwtPayload | string = jwt.verify(accessTokenObject.accessToken, process.env.JWT_SECRET as string);
 
@@ -91,7 +91,9 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
             throw new Error(result.message || "Login failed");
         }
 
-        if (redirectTo && result.data.needPasswordChange) {
+        const needPasswordChange = result.data?.needPasswordChange || result.data?.user?.needPasswordChange;
+
+        if (redirectTo && needPasswordChange) {
             const requestedPath = redirectTo.toString();
             if (isValidRedirectForRole(requestedPath, userRole)) {
                 redirect(`/reset-password?redirect=${requestedPath}`);
@@ -100,7 +102,7 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
             }
         }
 
-        if (result.data.needPasswordChange) {
+        if (needPasswordChange) {
             redirect("/reset-password");
         }
 
@@ -123,6 +125,6 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
             throw error;
         }
         console.log(error);
-        return { success: false, message: `${process.env.NODE_ENV === 'development' ? error.message : "Login Failed. You might have entered incorrect email or password."}` };
+        return { success: false, message: `${process.env.NODE_ENV === 'development' ? error.message : "Login Failed. You might have entered incorrect email/phone or password."}` };
     }
 }

@@ -13,6 +13,11 @@ export async function registerJobSeeker(_prevState: any, formData: FormData) {
       email: formData.get("email") as string,
       phone: formData.get("phone") as string | null,
       password: formData.get("password") as string,
+      confirmPassword: formData.get("confirmPassword") as string,
+      experienceYears: formData.get("experienceYears") as string,
+      skills: formData.get("skills") as string,
+      education: formData.get("education") as string,
+      preferredLocations: formData.get("preferredLocations") as string,
     };
 
     const validation = zodValidator(payload, seekerRegisterSchema);
@@ -20,14 +25,24 @@ export async function registerJobSeeker(_prevState: any, formData: FormData) {
       return validation;
     }
 
-    const data = {
+    const data: Record<string, unknown> = {
       password: validation.data!.password,
       fullName: validation.data!.fullName,
-      email: validation.data!.email,
+      email: validation.data!.email || undefined,
       phone: validation.data!.phone || undefined,
+      experienceYears: validation.data!.experienceYears,
+      skills: validation.data!.skills || undefined,
+      education: validation.data!.education || undefined,
+      preferredLocations: validation.data!.preferredLocations || undefined,
     };
+
     const form = new FormData();
     form.append("data", JSON.stringify(data));
+
+    const resumeFile = formData.get("resumeFile");
+    if (resumeFile instanceof Blob && resumeFile.size > 0) {
+      form.append("resumeFile", resumeFile);
+    }
 
     const res = await serverFetch.post("/users/register/job-seeker", {
       body: form,
@@ -42,6 +57,9 @@ export async function registerJobSeeker(_prevState: any, formData: FormData) {
 
     return result;
   } catch (err: any) {
+    if (err?.digest?.startsWith("NEXT_REDIRECT")) {
+      throw err;
+    }
     console.error(err);
     return {
       success: false,
