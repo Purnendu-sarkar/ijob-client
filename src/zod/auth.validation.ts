@@ -1,6 +1,7 @@
 import z from "zod";
 
 const emptyToUndefined = (value: unknown) => {
+  if (value === null || value === undefined) return undefined;
   if (typeof value !== "string") return value;
   const trimmed = value.trim();
   return trimmed.length ? trimmed : undefined;
@@ -21,6 +22,8 @@ const phoneSchema = z.preprocess(
 
 const contactRefinement = (data: { email?: string; phone?: string }) =>
   Boolean(data.email || data.phone);
+
+const verificationChannelSchema = z.enum(["EMAIL", "SMS", "WHATSAPP"]);
 
 export const seekerRegisterSchema = z
   .object({
@@ -111,9 +114,20 @@ export const forgotPasswordSchema = z.object({
   email: z.email("Please enter a valid email address"),
 });
 
+export const requestContactVerificationSchema = z.object({
+  identifier: z.string().trim().min(5, "Email or phone is required"),
+  channel: verificationChannelSchema.optional(),
+});
+
+export const confirmContactVerificationSchema = requestContactVerificationSchema.extend({
+  code: z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit verification code"),
+});
+
 export type SeekerRegisterInput = z.infer<typeof seekerRegisterSchema>;
 export type EmployerRegisterInput = z.infer<typeof employerRegisterSchema>;
 export type LoginInput = z.infer<typeof loginValidationZodSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type RequestContactVerificationInput = z.infer<typeof requestContactVerificationSchema>;
+export type ConfirmContactVerificationInput = z.infer<typeof confirmContactVerificationSchema>;

@@ -51,6 +51,21 @@ export async function registerJobSeeker(_prevState: any, formData: FormData) {
     const result = await res.json();
 
     if (result.success) {
+      const identifier = validation.data!.email || validation.data!.phone;
+      if (identifier) {
+        try {
+          await serverFetch.post("/auth/verification/request", {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              identifier,
+              channel: validation.data!.email ? "EMAIL" : "SMS",
+            }),
+          });
+        } catch (error) {
+          console.error("Could not send verification code after registration:", error);
+        }
+      }
+
       // Auto-login after successful registration
       await loginUser(null, formData);
     }

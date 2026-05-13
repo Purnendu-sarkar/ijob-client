@@ -22,6 +22,12 @@ const EmployerPendingVerificationPage = async () => {
   const company = user.employerProfile?.company;
   const status = company?.verificationStatus || "PENDING";
   const documents = company?.verificationDocuments || [];
+  const documentTypes = new Set(documents.map((document) => document.documentType));
+  const missingRequiredDocuments = [
+    { type: "TRADE_LICENSE", label: "Trade License" },
+    { type: "NID", label: "NID / Contact Person ID" },
+  ].filter((document) => !documentTypes.has(document.type));
+  const isReadyForReview = missingRequiredDocuments.length === 0;
 
   if (status === "VERIFIED") {
     redirect("/employer/dashboard");
@@ -34,7 +40,9 @@ const EmployerPendingVerificationPage = async () => {
           Company verification
         </h1>
         <p className="text-muted-foreground">
-          {company?.name || "Your company"} is waiting for admin review.
+          {isReadyForReview
+            ? `${company?.name || "Your company"} is waiting for admin review.`
+            : "Upload the required documents to start admin review."}
         </p>
       </div>
 
@@ -57,6 +65,13 @@ const EmployerPendingVerificationPage = async () => {
             <p className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
               {company.verificationRejectionReason}
             </p>
+          ) : null}
+
+          {missingRequiredDocuments.length ? (
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              Required before review:{" "}
+              {missingRequiredDocuments.map((document) => document.label).join(", ")}.
+            </div>
           ) : null}
 
           {documents.length ? (

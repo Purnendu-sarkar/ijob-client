@@ -12,6 +12,7 @@ import { deleteCookie, getCookie } from './services/auth/tokenHandlers';
 // This function can be marked `async` if using `await` inside
 export async function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
+    const contactVerificationPath = "/verify-contact";
     const hasTokenRefreshedParam = request.nextUrl.searchParams.has('tokenRefreshed');
 
     // If coming back after token refresh, remove the param and continue
@@ -151,6 +152,19 @@ export async function proxy(request: NextRequest) {
         }
 
         if (userInfo && !userInfo.needPasswordChange && pathname === '/reset-password') {
+            return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole as UserRole), request.url));
+        }
+
+        const needsContactVerification =
+            (userRole === "JOB_SEEKER" || userRole === "EMPLOYER") &&
+            !userInfo.emailVerifiedAt &&
+            !userInfo.phoneVerifiedAt;
+
+        if (needsContactVerification && pathname !== contactVerificationPath) {
+            return NextResponse.redirect(new URL(contactVerificationPath, request.url));
+        }
+
+        if (!needsContactVerification && pathname === contactVerificationPath) {
             return NextResponse.redirect(new URL(getDefaultDashboardRoute(userRole as UserRole), request.url));
         }
 

@@ -85,6 +85,21 @@ export async function registerEmployer(_prevState: any, formData: FormData) {
       };
     }
 
+    const identifier = validation.data!.email || validation.data!.phone;
+    if (identifier) {
+      try {
+        await serverFetch.post("/auth/verification/request", {
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            identifier,
+            channel: validation.data!.email ? "EMAIL" : "SMS",
+          }),
+        });
+      } catch (error) {
+        console.error("Could not send verification code after registration:", error);
+      }
+    }
+
     await loginUser(null, formData);
 
     return result;

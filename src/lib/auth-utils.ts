@@ -21,7 +21,7 @@ export const authRoutes = ["/login", "/register", "/forgot-password", "/reset-pa
 // (accessible by all logged users)
 // ================================
 export const commonProtectedRoutes: RouteConfig = {
-    exact: ["/my-profile", "/settings", "/change-password", "/reset-password"],
+    exact: ["/my-profile", "/settings", "/change-password", "/reset-password", "/verify-contact"],
     patterns: [],
 };
 

@@ -6,7 +6,13 @@ import { parse } from "cookie";
 import { revalidateTag } from "next/cache";
 import { deleteCookie, getCookie, setCookie } from "./tokenHandlers";
 import { zodValidator } from "@/lib/zodValidator";
-import { changePasswordSchema, forgotPasswordSchema, resetPasswordSchema } from "@/zod/auth.validation";
+import {
+    changePasswordSchema,
+    confirmContactVerificationSchema,
+    forgotPasswordSchema,
+    requestContactVerificationSchema,
+    resetPasswordSchema,
+} from "@/zod/auth.validation";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export async function updateMyProfile(formData: FormData) {
@@ -216,6 +222,81 @@ export async function changePassword(_prevState: any, formData: FormData) {
             success: false,
             message: error?.message || "Something went wrong",
             formData: validationPayload,
+        };
+    }
+}
+
+export async function requestContactVerification(_prevState: any, formData: FormData) {
+    const payload = {
+        identifier: formData.get("identifier") as string,
+        channel: (formData.get("channel") as string) || undefined,
+    };
+
+    const validatedPayload = zodValidator(payload, requestContactVerificationSchema);
+
+    if (!validatedPayload.success && validatedPayload.errors) {
+        return {
+            success: false,
+            message: "Validation failed",
+            errors: validatedPayload.errors,
+        };
+    }
+
+    try {
+        const response = await serverFetch.post("/auth/verification/request", {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(validatedPayload.data),
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message || "Could not send verification code");
+        }
+
+        return result;
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error?.message || "Could not send verification code",
+        };
+    }
+}
+
+export async function confirmContactVerification(_prevState: any, formData: FormData) {
+    const payload = {
+        identifier: formData.get("identifier") as string,
+        channel: (formData.get("channel") as string) || undefined,
+        code: formData.get("code") as string,
+    };
+
+    const validatedPayload = zodValidator(payload, confirmContactVerificationSchema);
+
+    if (!validatedPayload.success && validatedPayload.errors) {
+        return {
+            success: false,
+            message: "Validation failed",
+            errors: validatedPayload.errors,
+        };
+    }
+
+    try {
+        const response = await serverFetch.post("/auth/verification/confirm", {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(validatedPayload.data),
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message || "Could not verify contact");
+        }
+
+        revalidateTag("user-info", { expire: 0 });
+
+        return result;
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error?.message || "Could not verify contact",
         };
     }
 }
